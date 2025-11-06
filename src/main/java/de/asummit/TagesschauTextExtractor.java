@@ -13,55 +13,75 @@ import org.apache.commons.text.StringEscapeUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TagesschauTextExtractor {
-   
+/**
+ * Utility to fetch Tagesschau JSON and write simplified HTML output.
+ */
+public final class TagesschauTextExtractor {
+
     /**
      * Private constructor to prevent instantiation.
      */
-    private TagesschauTextExtractor() {}
-    
+    private TagesschauTextExtractor() {
+        // Utility class.
+    }
+
     /**
      * Main entry point for the text extractor.
      *
-     * @param final args The command line arguments
+     * @param args command line arguments (not used)
+     * @throws Exception on network or IO errors
      */
-    public static void main(String[] args) throws Exception {
-        String url = "https://www.tagesschau.de/api2u/homepage/";
-        String outputFilePath = "news.html";
+    public static void main(final String[] args) throws Exception {
+        final String url = "https://www.tagesschau.de/api2u/homepage/";
+        final String outputFilePath = "news.html";
+        final int httpOk = 200;
 
         HttpClient client = HttpClient.newBuilder()
-                .followRedirects(HttpClient.Redirect.ALWAYS)
-                .build();
+            .followRedirects(HttpClient.Redirect.ALWAYS)
+            .build();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("accept", "application/json")
-                .GET()
-                .build();
+            .uri(URI.create(url))
+            .header("accept", "application/json")
+            .GET()
+            .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(
+            request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() == 200) {
+        if (response.statusCode() == httpOk) {
             String responseBody = response.body();
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(responseBody);
-
             JsonNode newsArray = rootNode.get("news");
 
             if (newsArray != null && newsArray.isArray()) {
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath))) {
-                    writer.write("<!DOCTYPE html>\n<html lang=\"de\">\n<head>\n<meta charset=\"UTF-8\">\n<title>Tagesschau News</title>\n</head>\n<body>\n");
+                try (BufferedWriter writer =
+                        new BufferedWriter(new FileWriter(outputFilePath))) {
+
+                    writer.write("<!DOCTYPE html>\n");
+                    writer.write("<html lang=\"de\">\n");
+                    writer.write("<head>\n");
+                    writer.write("<meta charset=\"UTF-8\">\n");
+                    writer.write("<title>Tagesschau News</title>\n");
+                    writer.write("</head>\n");
+                    writer.write("<body>\n");
 
                     for (JsonNode newsItem : newsArray) {
-                        String title = newsItem.path("title").asText("Kein Titel");
+                        String title = newsItem.path("title")
+                            .asText("Kein Titel");
 
-                        // Erzeuge eine ID-sichere Zeichenkette aus dem Titel (vereinfacht)
                         String id = title.toLowerCase()
-                                .replaceAll("[^a-z0-9\\s-]", "") // entferne Sonderzeichen
-                                .replaceAll("\\s+", "-");        // ersetze Leerzeichen durch '-'
+                            .replaceAll("[^a-z0-9\\s-]", "")
+                            .replaceAll("\\s+", "-");
 
-                        writer.write("<div class=\"article\" id=\"" + id + "\">\n");
-                        writer.write("<h2>" + escapeHtml(title) + "</h2>\n");
+                        writer.write("<div class=\"article\" id=\"");
+                        writer.write(id);
+                        writer.write("\">\n");
+
+                        writer.write("<h2>");
+                        writer.write(escapeHtml(title));
+                        writer.write("</h2>\n");
 
                         JsonNode contentArray = newsItem.get("content");
 
@@ -69,43 +89,68 @@ public class TagesschauTextExtractor {
                             StringBuilder topicText = new StringBuilder();
 
                             for (JsonNode contentPart : contentArray) {
-                                if ("text".equals(contentPart.path("type").asText(null))) {
-                                    String htmlValue = contentPart.path("value").asText("");
-                                    String unescaped = StringEscapeUtils.unescapeHtml4(htmlValue);
-                                    String cleanText = Jsoup.parse(unescaped).text();
-                                    topicText.append(cleanText).append("\n\n");
+                                if ("text".equals(contentPart
+                                        .path("type")
+                                        .asText(null))) {
+
+                                    String htmlValue = contentPart
+                                        .path("value")
+                                        .asText("");
+                                    String unescaped = StringEscapeUtils
+                                        .unescapeHtml4(htmlValue);
+                                    String cleanText = Jsoup.parse(unescaped)
+                                        .text();
+                                    topicText.append(cleanText)
+                                        .append("\n\n");
                                 }
                             }
 
-                            String escapedText = escapeHtml(topicText.toString());
-                            writer.write("<p>" + escapedText.replace("\n\n", "<br/><br/>") + "</p>\n");
+                            String escapedText = escapeHtml(
+                                topicText.toString());
+                            writer.write("<p>");
+                            writer.write(escapedText.replace(
+                                "\n\n", "<br/><br/>"));
+                            writer.write("</p>\n");
                         } else {
-                            writer.write("<p>(Keine Textinhalte für diesen Artikel gefunden)</p>\n");
+                            writer.write("<p>");
+                            writer.write("(Keine Textinhalte für "
+                                + "diesen Artikel gefunden)");
+                            writer.write("</p>\n");
                         }
 
                         writer.write("</div>\n\n");
                     }
 
-                    writer.write("</body>\n</html>");
-                    System.out.println("HTML-Datei wurde erfolgreich geschrieben: " + outputFilePath);
+                    writer.write("</body>\n");
+                    writer.write("</html>");
+                    System.out.print(
+                        "HTML-Datei wurde erfolgreich geschrieben: ");
+                    System.out.println(outputFilePath);
                 }
             } else {
-                System.out.println("Kein 'news'-Array in der JSON-Antwort gefunden.");
+                System.out.println(
+                    "Kein 'news'-Array in der JSON-Antwort gefunden.");
             }
         } else {
-            System.out.println("Anfrage fehlgeschlagen mit Statuscode: " + response.statusCode());
+            System.out.print("Anfrage fehlgeschlagen mit Statuscode: ");
+            System.out.println(response.statusCode());
         }
     }
 
     /**
      * Escapes HTML special characters in a string.
+     *
+     * @param text input text that may contain HTML special characters
+     * @return escaped text safe for embedding in HTML
      */
-    private static String escapeHtml(String text) {
-        if (text == null) return "";
+    private static String escapeHtml(final String text) {
+        if (text == null) {
+            return "";
+        }
         return text.replace("&", "&amp;")
-                   .replace("<", "&lt;")
-                   .replace(">", "&gt;")
-                   .replace("\"", "&quot;")
-                   .replace("'", "&#39;");
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;");
     }
 }
