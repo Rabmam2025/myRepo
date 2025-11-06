@@ -14,7 +14,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TagesschauTextExtractor {
-
+   
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private TagesschauTextExtractor() {}
+    
+    /**
+     * Main entry point for the text extractor.
+     *
+     * @param final args The command line arguments
+     */
     public static void main(String[] args) throws Exception {
         String url = "https://www.tagesschau.de/api2u/homepage/";
         String outputFilePath = "news.html";
@@ -87,6 +97,9 @@ public class TagesschauTextExtractor {
         }
     }
 
+    /**
+     * Escapes HTML special characters in a string.
+     */
     private static String escapeHtml(String text) {
         if (text == null) return "";
         return text.replace("&", "&amp;")
