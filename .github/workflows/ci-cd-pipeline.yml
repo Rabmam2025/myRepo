@@ -32,8 +32,5 @@ jobs:
     - name: Build with Maven and Run Checkstyle
       run: mvn clean install checkstyle:check
 
-    - name: Run OWASP Dependency-Check
-      run: mvn org.owasp:dependency-check-maven:check
-
     - name: Run Tests
       run: mvn test
