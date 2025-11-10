@@ -18,6 +18,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public final class TagesschauTextExtractor {
 
+    private static final String DEFAULT_API_URL = 
+        "https://www.tagesschau.de/api2u/homepage/";
+    private static final String DEFAULT_OUTPUT_FILE = "news.html";
+
     /**
      * Private constructor to prevent instantiation.
      */
@@ -32,8 +36,10 @@ public final class TagesschauTextExtractor {
      * @throws Exception on network or IO errors
      */
     public static void main(final String[] args) throws Exception {
-        final String url = "https://www.tagesschau.de/api2u/homepage/";
-        final String outputFilePath = "news.html";
+        final String url = System.getProperty("tagesschau.api.url", 
+            DEFAULT_API_URL);
+        final String outputFilePath = System.getProperty("output.file.path",
+            DEFAULT_OUTPUT_FILE);
         final int httpOk = 200;
 
         HttpClient client = HttpClient.newBuilder()
