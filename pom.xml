@@ -129,7 +129,6 @@
             </goals>
             <configuration>
               <propertyName>jacoco.agent.argLine</propertyName>
-              <!-- Exclude problematic packages from instrumentation -->
               <excludes>
                 <exclude>jdk/internal/**</exclude>
                 <exclude>java/lang/instrument/**</exclude>
