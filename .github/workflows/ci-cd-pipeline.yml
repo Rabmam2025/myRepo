@@ -35,9 +35,21 @@ jobs:
     - name: Run Tests
       run: mvn test
 
-    - name: Upload test reports
+    - name: Debug test report files
+      if: always()
+      run: |
+        echo "Listing target directory"
+        ls -la target || true
+        echo "Searching for report files"
+        find target -maxdepth 5 -type f -name '*surefire*' -o -name '*failsafe*' -o -name '*.xml' -o -name '*jacoco*' || true
+
+    - name: Upload test reports and coverage
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: test-reports
-        path: target/surefire-reports/
+        path: |
+          target/surefire-reports
+          target/failsafe-reports
+          target/*-reports
+          target/site/jacoco
