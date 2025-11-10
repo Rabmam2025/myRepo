@@ -21,7 +21,7 @@ public final class TagesschauTextExtractor {
     /** Default API endpoint URL for fetching news data. */
     private static final String DEFAULT_API_URL =
         "https://www.tagesschau.de/api2u/homepage/";
-    
+
     /** Default output file path for the generated HTML. */
     private static final String DEFAULT_OUTPUT_FILE = "news.html";
 
