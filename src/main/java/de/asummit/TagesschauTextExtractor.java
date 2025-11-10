@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public final class TagesschauTextExtractor {
 
-    /** Default API endpoint URL for fetching news data. */
+    /** Default API endpoint URL for fetching Tagesschau news data. */
     private static final String DEFAULT_API_URL =
         "https://www.tagesschau.de/api2u/homepage/";
 
