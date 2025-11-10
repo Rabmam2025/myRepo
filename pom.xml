@@ -110,12 +110,31 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.8.11</version>
+        <configuration>
+          <excludes>
+            <!-- Exclude JDK internal classes -->
+            <exclude>jdk.internal.*</exclude>
+            <exclude>java.lang.instrument.*</exclude>
+            <exclude>sun.*</exclude>
+            <!-- Exclude test classes -->
+            <exclude>**/*Test*</exclude>
+            <exclude>**/Test*</exclude>
+          </excludes>
+        </configuration>
         <executions>
           <execution>
             <id>prepare-agent</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
+            <configuration>
+              <propertyName>jacoco.agent.argLine</propertyName>
+              <!-- Exclude problematic packages from instrumentation -->
+              <excludes>
+                <exclude>jdk/internal/**</exclude>
+                <exclude>java/lang/instrument/**</exclude>
+              </excludes>
+            </configuration>
           </execution>
           <execution>
             <id>report</id>
