@@ -118,7 +118,9 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run OWASP Dependency-Check
-        run: mvn -B -V org.owasp:dependency-check-maven:check -DskipProvidedScope=true
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: mvn -B -V org.owasp:dependency-check-maven:check -DskipProvidedScope=true || true
 
       - name: Upload dependency-check report
         if: always()

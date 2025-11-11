@@ -105,6 +105,18 @@
         </executions>
       </plugin>
 
+      <!-- OWASP Dependency-Check for vulnerability scanning -->
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>12.1.9</version>
+        <configuration>
+          <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+          <skipProvidedScope>true</skipProvidedScope>
+          <skipRuntimeScope>false</skipRuntimeScope>
+        </configuration>
+      </plugin>
+
       <!-- JaCoCo for code coverage -->
       <plugin>
         <groupId>org.jacoco</groupId>
