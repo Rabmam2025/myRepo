@@ -65,6 +65,9 @@ jobs:
 
   codeql:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v3
       - uses: github/codeql-action/init@v3
